@@ -11,10 +11,10 @@ message = """Отмечается тенденция к увеличению в 
 дискриминации, российским журналистам создаются препятствия для
 осуществления их профессиональной деятельности"""
 
-d = {'а': 1, 'б': 2, 'в': 3, 'г': 4, 'д': 5, 'е': 6, 'ё': 7, 'ж': 8, 'з': 9, 'и': 10, 'й': 11, 'к': 12, 'л': 13, 'м': 14,
-     'н': 15, 'о': 16, 'п': 17, 'р': 18,
-     'с': 19, 'т': 20, 'у': 21, 'ф': 22, 'х': 23, 'ц': 24, 'ч': 25, 'щ': 26, 'ш': 27, 'ъ': 28, 'ы': 29, 'ь': 30, 'э': 31,
-     'ю': 32, 'я': 33, ' ': 34, ',': 35, '.': 36, '!': 37, '?': 38, '-': 39, '\n': 40}
+d = {'а': 0, 'б': 1, 'в': 2, 'г': 3, 'д': 4, 'е': 5, 'ё': 6, 'ж': 7, 'з': 8, 'и': 9, 'й': 10, 'к': 11, 'л': 12, 'м': 13,
+     'н': 14, 'о': 15, 'п': 16, 'р': 17,
+     'с': 18, 'т': 19, 'у': 20, 'ф': 21, 'х': 22, 'ц': 23, 'ч': 24, 'щ': 25, 'ш': 26, 'ъ': 27, 'ы': 28, 'ь': 29, 'э': 30,
+     'ю': 31, 'я': 32, ' ': 33, ',': 34, '.': 35, '!': 36, '?': 37, '-': 38, '\n': 39}
 d_inv = {v: k for k, v in d.items()}
 
 print("d_inv ", d_inv)
@@ -45,12 +45,12 @@ def encrypt(msg, fp, key):
     random.seed(fp)
     for i in range(len(msg)):
         r = random.randint(a, b)
-        msg[i] = (msg[i] + r) % (len(d) + 1)
+        msg[i] = (msg[i] + r) % (len(d))
 
     random.seed(fp + key)
     for i in range(len(msg)):
         r = random.randint(a, b)
-        msg[i] = (msg[i] + r) % (len(d) + 1)
+        msg[i] = (msg[i] + r) % (len(d))
     return msg
 
 
@@ -58,15 +58,28 @@ def decrypt(msg, fp, key):
     random.seed(fp + key)
     for i in range(len(msg)):
         r = random.randint(a, b)
-        msg[i] = (msg[i] - r) % (len(d) + 1)
+        msg[i] = (msg[i] - r) % (len(d))
     random.seed(fp)
     for i in range(len(msg)):
         r = random.randint(a, b)
-        msg[i] = (msg[i] - r) % (len(d) + 1)
+        msg[i] = (msg[i] - r) % (len(d))
     print(msg)
-    ans = [d_inv[el ] for el in msg]
+    ans = [d_inv[el] for el in msg]
+
     return ans
 
 
 print(encrypt(message, first_param, key))
 print(decrypt(encrypt(message, first_param, key), first_param, key ))
+
+
+def brute_decrypt(msg, l, r, key):
+    for i in range(l, r, 1):
+        ans = decrypt(msg, l, key)
+        with open("ans.txt", "a") as f:
+            f.write(''.join(ans) + "\n")
+    # pass
+
+
+brute_decrypt(encrypt(message, first_param, key), a, b, key)
+
