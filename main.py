@@ -1,8 +1,8 @@
 # coding=utf-8
 import random
 
-a = 100000
-b = 1000000
+a = 2 ** 16
+b = 2 ** 17
 
 message = """Отмечается тенденция к увеличению в зарубежных средствах мас-
 совой информации объема материалов, содержащих предвзятую оценку
@@ -18,7 +18,7 @@ d = {'а': 0, 'б': 1, 'в': 2, 'г': 3, 'д': 4, 'е': 5, 'ё': 6, 'ж': 7, 'з
 d_inv = {v: k for k, v in d.items()}
 
 print("d_inv ", d_inv)
-low = {'А': 'а', 'Б': 'б', 'В': 'в', 'Г': 'г', 'Д': 'д', 'Е': 'е', 'Ё': 'ё', 'Ж': 'ж', 'З': 'э', 'И': 'и', 'Й': 'й',
+low = {'А': 'а', 'Б': 'б', 'В': 'в', 'Г': 'г', 'Д': 'д', 'Е': 'е', 'Ё': 'ё', 'Ж': 'ж', 'З': 'з', 'И': 'и', 'Й': 'й',
        'К': 'к', 'Л': 'л', 'М': 'м', 'Н': 'н',
        'О': 'о', 'П': 'п', 'Р': 'р', 'С': 'с', 'Т': 'т', 'У': 'у', 'Ф': 'ф', 'Х': 'х', 'Ц': 'ц', 'Ч': 'ч', 'Ш': 'ш',
        'Щ': 'щ', 'Ъ': 'ъ', 'Ы': 'ы', 'Ь': 'ь', 'Э': 'э', 'Ю': 'ю', 'Я': 'я',
@@ -27,59 +27,64 @@ low = {'А': 'а', 'Б': 'б', 'В': 'в', 'Г': 'г', 'Д': 'д', 'Е': 'е', '
        'о': 'о', 'п': 'п', 'р': 'р', 'с': 'с', 'т': 'т', 'у': 'у', 'ф': 'ф', 'х': 'х', 'ц': 'ц', 'ч': 'ч', 'ш': 'ш',
        'щ': 'щ', 'ъ': 'ъ', 'ы': 'ы', 'ь': 'ь', 'э': 'э', 'ю': 'ю', 'я': 'я', ' ': ' ', ',': ',', '.': '.', '!': '!', '?': '?', '-': '-', '\n': '\n'}
 
-# print low['О']
-# print [el for el in message]
-# print [el[1] for el in message]
-# print([el for el in bytes(message, encoding='utf-8')])
-# print([low[el] for el in message])
+
 print([d[low[el]] for el in message])
 
 
-# print [d[low[el]] for el in message]
-first_param = 4578913
-key = 1298735
+first_param = 100000
+key = 118735
 
 
 def encrypt(msg, fp, key):
     msg = [d[low[el]] for el in msg]
+    ans = msg.copy()
     random.seed(fp)
-    for i in range(len(msg)):
+    for i in range(len(ans)):
         r = random.randint(a, b)
-        msg[i] = (msg[i] + r) % (len(d))
+        ans[i] = (ans[i] + r) % (len(d))
+
 
     random.seed(fp + key)
     for i in range(len(msg)):
         r = random.randint(a, b)
-        msg[i] = (msg[i] + r) % (len(d))
-    return msg
-
-
-def decrypt(msg, fp, key):
-    random.seed(fp + key)
-    for i in range(len(msg)):
-        r = random.randint(a, b)
-        msg[i] = (msg[i] - r) % (len(d))
-    random.seed(fp)
-    for i in range(len(msg)):
-        r = random.randint(a, b)
-        msg[i] = (msg[i] - r) % (len(d))
-    print(msg)
-    ans = [d_inv[el] for el in msg]
+        ans[i] = (ans[i] + r) % (len(d))
 
     return ans
 
 
-print(encrypt(message, first_param, key))
-print(decrypt(encrypt(message, first_param, key), first_param, key ))
+def decrypt(msg, fp, key):
+    random.seed(fp + key)
+    ans = msg.copy()
+    rr = []
+    for i in range(len(ans)):
+        r = random.randint(a, b)
+        ans[i] = (ans[i] - r) % (len(d))
+
+    random.seed(fp)
+    for i in range(len(msg)):
+        r = random.randint(a, b)
+        if key == 118735:
+            rr.append(r)
+        ans[i] = (ans[i] - r) % (len(d))
+    res = [d_inv[el] for el in ans]
+    return res
 
 
-def brute_decrypt(msg, l, r, key):
-    for i in range(l, r, 1):
-        ans = decrypt(msg, l, key)
+# print(encrypt(message, first_param, key))
+
+# print(decrypt(encrypt(message, first_param, key), first_param, key))
+
+
+def brute_decrypt(msg, fp, ll, rr):
+    for kk in range(ll, rr, 1):
+        ans = decrypt(msg, fp, kk)
         with open("ans.txt", "a") as f:
+            f.write(f"fp {fp}  kk {kk}")
             f.write(''.join(ans) + "\n")
     # pass
 
 
-brute_decrypt(encrypt(message, first_param, key), a, b, key)
+enc_msg = encrypt(message, first_param, key)
+brute_decrypt(enc_msg, first_param, a, b)
+
 
