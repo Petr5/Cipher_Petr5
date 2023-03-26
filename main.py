@@ -1,15 +1,10 @@
 # coding=utf-8
 import random
-
+from Messages import Messages
 a = 2 ** 16
 b = 2 ** 17
 
-message = """Отмечается тенденция к увеличению в зарубежных средствах мас-
-совой информации объема материалов, содержащих предвзятую оценку
-государственной политики Российской Федерации. Российские средства
-массовой информации зачастую подвергаются за рубежом откровенной
-дискриминации, российским журналистам создаются препятствия для
-осуществления их профессиональной деятельности"""
+message = Messages.third
 
 d = {'а': 0, 'б': 1, 'в': 2, 'г': 3, 'д': 4, 'е': 5, 'ё': 6, 'ж': 7, 'з': 8, 'и': 9, 'й': 10, 'к': 11, 'л': 12, 'м': 13,
      'н': 14, 'о': 15, 'п': 16, 'р': 17,
@@ -17,7 +12,7 @@ d = {'а': 0, 'б': 1, 'в': 2, 'г': 3, 'д': 4, 'е': 5, 'ё': 6, 'ж': 7, 'з
      'ю': 31, 'я': 32, ' ': 33, ',': 34, '.': 35, '!': 36, '?': 37, '-': 38, '\n': 39}
 d_inv = {v: k for k, v in d.items()}
 
-print("d_inv ", d_inv)
+# print("d_inv ", d_inv)
 low = {'А': 'а', 'Б': 'б', 'В': 'в', 'Г': 'г', 'Д': 'д', 'Е': 'е', 'Ё': 'ё', 'Ж': 'ж', 'З': 'з', 'И': 'и', 'Й': 'й',
        'К': 'к', 'Л': 'л', 'М': 'м', 'Н': 'н',
        'О': 'о', 'П': 'п', 'Р': 'р', 'С': 'с', 'Т': 'т', 'У': 'у', 'Ф': 'ф', 'Х': 'х', 'Ц': 'ц', 'Ч': 'ч', 'Ш': 'ш',
@@ -28,63 +23,62 @@ low = {'А': 'а', 'Б': 'б', 'В': 'в', 'Г': 'г', 'Д': 'д', 'Е': 'е', '
        'щ': 'щ', 'ъ': 'ъ', 'ы': 'ы', 'ь': 'ь', 'э': 'э', 'ю': 'ю', 'я': 'я', ' ': ' ', ',': ',', '.': '.', '!': '!', '?': '?', '-': '-', '\n': '\n'}
 
 
-print([d[low[el]] for el in message])
+# print([d[low[el]] for el in message])
 
 
-first_param = 100000
-key = 118735
+begin_of_segment = 70000
+length_line_segment = 38735
 
 
-def encrypt(msg, fp, key):
+def encrypt(msg, begin_of_segment, length_line_segment):
     msg = [d[low[el]] for el in msg]
     ans = msg.copy()
-    random.seed(fp)
+    random.seed(begin_of_segment)
     for i in range(len(ans)):
         r = random.randint(a, b)
         ans[i] = (ans[i] + r) % (len(d))
 
-
-    random.seed(fp + key)
+    random.seed(begin_of_segment + length_line_segment)
     for i in range(len(msg)):
         r = random.randint(a, b)
         ans[i] = (ans[i] + r) % (len(d))
-
+    print(''.join([d_inv[el] for el in ans]))
     return ans
 
 
-def decrypt(msg, fp, key):
-    random.seed(fp + key)
+def decrypt(msg, begin_of_segment, length_line_segment):
+    random.seed(begin_of_segment + length_line_segment)
     ans = msg.copy()
     rr = []
     for i in range(len(ans)):
         r = random.randint(a, b)
         ans[i] = (ans[i] - r) % (len(d))
 
-    random.seed(fp)
+    random.seed(begin_of_segment)
     for i in range(len(msg)):
         r = random.randint(a, b)
-        if key == 118735:
+        if length_line_segment == 118735:
             rr.append(r)
         ans[i] = (ans[i] - r) % (len(d))
     res = [d_inv[el] for el in ans]
     return res
 
 
-# print(encrypt(message, first_param, key))
+print(encrypt(message, begin_of_segment, length_line_segment))
 
-# print(decrypt(encrypt(message, first_param, key), first_param, key))
+# print(decrypt(encrypt(message, begin_of_segment, length_line_segment), begin_of_segment, length_line_segment))
 
 
-def brute_decrypt(msg, fp, ll, rr):
+def brute_decrypt(msg, begin_of_segment, ll, rr):
     for kk in range(ll, rr, 1):
-        ans = decrypt(msg, fp, kk)
+        ans = decrypt(msg, begin_of_segment, kk)
         with open("ans.txt", "a") as f:
-            f.write(f"fp {fp}  kk {kk}")
+            f.write(f"begin_of_segment {begin_of_segment}  kk {kk}")
             f.write(''.join(ans) + "\n")
     # pass
 
 
-enc_msg = encrypt(message, first_param, key)
-brute_decrypt(enc_msg, first_param, a, b)
+# enc_msg = encrypt(message, begin_of_segment, length_line_segment)
+# brute_decrypt(enc_msg, begin_of_segment, a, b)
 
 
